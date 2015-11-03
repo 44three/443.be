@@ -1,36 +1,28 @@
 from os import listdir, makedirs, path, walk
-from jinja2 import Environment, FileSystemLoader
 
+from jinja2 import Environment, FileSystemLoader
 import mistune
-from pygments import highlight
-from pygments.lexers import get_lexer_by_name
-from pygments.formatters import HtmlFormatter
+
+from ext.mistune_contrib import HighlightMixin
+
 
 BUILD_DIR = 'build/'
 CONTENT_DIR = 'content/'
 BLOG_CONTENT_DIR = path.join(CONTENT_DIR, 'blog/')
+TEMPLATE_DIR = '_templates'
 
 
-class HighlightRenderer(mistune.Renderer):
-
-    def block_code(self, code, lang):
-        if not lang:
-            return '\n<pre><code>%s</code></pre>\n' % \
-                mistune.escape(code)
-        lexer = get_lexer_by_name(lang, stripall=True)
-        formatter = HtmlFormatter()
-        return highlight(code, lexer, formatter)
+class Renderer(mistune.Renderer, HighlightMixin):
+    pass
 
 
-renderer = HighlightRenderer()
+renderer = Renderer()
 markdown = mistune.Markdown(renderer=renderer)
-env = Environment(loader= FileSystemLoader('_templates'))
-
-t_page = env.get_template('page.html')
-t_post = env.get_template('post.html')
+env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
 
 
 def render_and_write(content, template):
+    """ Render (.md|.html) content using the template provided """
     with open(path.join(CONTENT_DIR, content), 'r') as f:
         html = markdown(f.read())
 
@@ -46,11 +38,7 @@ def render_and_write(content, template):
 
 
 def make_pages():
-    """ Build the pages for the site
-
-    Any .html or .md file in the CONTENT_DIR will be rendered as 
-    BUILD_DIR/page_name/index.html
-    """
+    """ Build the pages for the site """
 
     pages = [
         page for page in listdir(CONTENT_DIR)
@@ -58,14 +46,14 @@ def make_pages():
     ]
 
     for page in pages:
-        render_and_write(page, t_page)
+        render_and_write(page, env.get_template('page.html'))
 
 
 def make_blog_posts():
     """ Build the blog posts
 
     Any .md or .html file in the BLOG_CONTENT_DIR will be rendered as 
-    BUILD_DIR/page_name/index.html
+    BLOG_CONTENT_DIR/path/to/page_name/index.html
     """
 
     posts = [
@@ -75,7 +63,7 @@ def make_blog_posts():
     ]
 
     for post in posts:
-        render_and_write(post, t_post)
+        render_and_write(post, env.get_template('post.html'))
 
 
 if __name__ == '__main__':
