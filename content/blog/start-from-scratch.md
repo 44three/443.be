@@ -1,10 +1,7 @@
-# Starting from Scratch
+# Start from Scratch
 
-It only takes a few ingredients to create a blog from scratch. Sure, there are
-plenty of pre-baked options out there but sometimes home cooking just hits the
-spot.  All it takes to make a blog is some `html` and `css`. With the right set
-of tools this can be done with style, speed, substance and grace. This blog is
-created with:
+It only takes a few ingredients to create a blog from scratch.  All you really
+need is some `html` and `css`. This blog is created with:
 
 - [jinja2](http://jinja.pocoo.org/docs/dev/) for quick, easy, and robust `html`
   templates.
